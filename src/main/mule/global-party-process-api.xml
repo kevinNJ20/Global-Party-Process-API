@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+  xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+  xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+  http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+">
+
+  <!-- GET /parties - Business Logic Flow -->
+  <flow name="get-parties-business-logic" doc:name="get-parties-business-logic">
+    <try doc:name="Try">
+      <http:request method="GET" config-ref="Global_Party_System_API_Config" path="/api/global/parties" doc:name="Get Parties from System API">
+        <http:query-params><![CDATA[#[{
+          "globalId": payload.globalId default null,
+          "limit": payload.limit default "100",
+          "offset": payload.offset default "0"
+        }]]]></http:query-params>
+      </http:request>
+
+      <http:response statusCode="200" doc:name="HTTP Response"/>
+      
+      <error-handler>
+        <on-error-propagate type="HTTP:REQUEST" enableNotifications="true" logException="true" doc:name="HTTP Error">
+          <ee:transform doc:name="Transform Error">
+            <ee:message>
+              <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  error: {
+    code: "SERVICE_ERROR",
+    message: "An error occurred while fetching parties",
+    timestamp: now()
+  }
+}]]></ee:set-payload>
+            </ee:message>
+          </ee:transform>
+          <http:response statusCode="500" doc:name="HTTP Response"/>
+        </on-error-propagate>
+      </error-handler>
+    </try>
+  </flow>
+
+  <!-- POST /parties - Business Logic Flow -->
+  <flow name="upsert-party-business-logic" doc:name="upsert-party-business-logic">
+    <try doc:name="Try">
+      <http:request method="POST" config-ref="Global_Party_System_API_Config" path="/api/global/parties" doc:name="Upsert Party to System API">
+        <http:body><![CDATA[#[payload]]]></http:body>
+      </http:request>
+
+      <http:response statusCode="#[attributes.statusCode default 200]" doc:name="HTTP Response"/>
+      
+      <error-handler>
+        <on-error-propagate type="HTTP:REQUEST" enableNotifications="true" logException="true" doc:name="HTTP Error">
+          <ee:transform doc:name="Transform Error">
+            <ee:message>
+              <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  error: {
+    code: "SERVICE_ERROR",
+    message: "An error occurred while upserting party",
+    timestamp: now()
+  }
+}]]></ee:set-payload>
+            </ee:message>
+          </ee:transform>
+          <http:response statusCode="500" doc:name="HTTP Response"/>
+        </on-error-propagate>
+      </error-handler>
+    </try>
+  </flow>
+
+  <!-- GET /parties/{partyGlobalId} - Business Logic Flow -->
+  <flow name="get-party-by-global-id-business-logic" doc:name="get-party-by-global-id-business-logic">
+    <try doc:name="Try">
+      <http:request method="GET" config-ref="Global_Party_System_API_Config" path="/api/global/parties/{partyGlobalId}" doc:name="Get Party from System API">
+        <http:uri-params><![CDATA[#[{partyGlobalId: vars.partyGlobalId}]]]></http:uri-params>
+      </http:request>
+
+      <http:response statusCode="200" doc:name="HTTP Response"/>
+      
+      <error-handler>
+        <on-error-propagate type="HTTP:NOT_FOUND" enableNotifications="true" logException="true" doc:name="Not Found Error">
+          <ee:transform doc:name="Transform Error">
+            <ee:message>
+              <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  error: {
+    code: "NOT_FOUND",
+    message: "Party not found",
+    timestamp: now()
+  }
+}]]></ee:set-payload>
+            </ee:message>
+          </ee:transform>
+          <http:response statusCode="404" doc:name="HTTP Response"/>
+        </on-error-propagate>
+      </error-handler>
+    </try>
+  </flow>
+
+  <!-- POST /parties/lookup - Lookup Party by External ID (pass-through) -->
+  <flow name="lookup-party-flow" doc:name="lookup-party-flow">
+    <http:listener doc:name="POST /parties/lookup" config-ref="HTTP_Listener_config" path="/api/global/parties/lookup" allowedMethods="POST"/>
+    
+    <try doc:name="Try">
+      <http:request method="POST" config-ref="Global_Party_System_API_Config" path="/api/global/parties/lookup" doc:name="Lookup Party from System API">
+        <http:body><![CDATA[#[payload]]]></http:body>
+      </http:request>
+
+      <http:response statusCode="200" doc:name="HTTP Response"/>
+      
+      <error-handler>
+        <on-error-propagate type="HTTP:NOT_FOUND" enableNotifications="true" logException="true" doc:name="Not Found Error">
+          <ee:transform doc:name="Transform Error">
+            <ee:message>
+              <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  error: {
+    code: "NOT_FOUND",
+    message: "Party not found for the given external ID",
+    timestamp: now()
+  }
+}]]></ee:set-payload>
+            </ee:message>
+          </ee:transform>
+          <http:response statusCode="404" doc:name="HTTP Response"/>
+        </on-error-propagate>
+      </error-handler>
+    </try>
+  </flow>
+
+</mule>

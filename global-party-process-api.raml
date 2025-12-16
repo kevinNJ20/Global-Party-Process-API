@@ -1,0 +1,112 @@
+#%RAML 1.0
+title: Global Party Process API
+version: 1.0.0
+baseUri: http://localhost:8082/api/process/global/parties
+mediaType: application/json
+
+documentation:
+  - title: Overview
+    content: API de processus pour gérer les parties dans Global Data (pass-through vers System API)
+
+types:
+  Party:
+    type: object
+    properties:
+      id?: string
+      globalId?: string
+      partyType: string
+      firstName?: string
+      lastName?: string
+      taxId?: string
+  ErrorResponse:
+    type: object
+    properties:
+      error:
+        type: object
+        properties:
+          code: string
+          message: string
+
+/parties:
+  displayName: Global Parties
+  description: Opérations sur les parties Global Data
+  
+  get:
+    displayName: Get Parties
+    queryParameters:
+      limit:
+        type: integer
+        required: false
+        default: 100
+      offset:
+        type: integer
+        required: false
+        default: 0
+      globalId:
+        type: string
+        required: false
+    responses:
+      200:
+        body:
+          application/json:
+            type: Party[]
+      400:
+        body:
+          application/json:
+            type: ErrorResponse
+
+  post:
+    displayName: Upsert Party
+    body:
+      application/json:
+        type: Party
+    responses:
+      200:
+        body:
+          application/json:
+            type: Party
+      201:
+        body:
+          application/json:
+            type: Party
+
+  /{partyGlobalId}:
+    displayName: Party by Global ID
+    uriParameters:
+      partyGlobalId:
+        type: string
+    get:
+      displayName: Get Party by Global ID
+      responses:
+        200:
+          body:
+            application/json:
+              type: Party
+        404:
+          body:
+            application/json:
+              type: ErrorResponse
+
+  /lookup:
+    displayName: Lookup Party
+    post:
+      displayName: Lookup Party by External ID
+      body:
+        application/json:
+          type: object
+          properties:
+            externalId:
+              type: object
+              properties:
+                system: string
+                value: string
+      responses:
+        200:
+          body:
+            application/json:
+              type: Party
+        404:
+          body:
+            application/json:
+              type: ErrorResponse
+
