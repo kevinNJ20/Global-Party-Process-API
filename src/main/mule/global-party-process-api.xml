@@ -2,8 +2,10 @@
 <mule xmlns="http://www.mulesoft.org/schema/mule/core"
   xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
   xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+  xmlns:http="http://www.mulesoft.org/schema/mule/http"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+  http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
   http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 ">
 
@@ -104,10 +106,8 @@ output application/json
     </try>
   </flow>
 
-  <!-- POST /parties/lookup - Lookup Party by External ID (pass-through) -->
-  <flow name="lookup-party-flow" doc:name="lookup-party-flow">
-    <http:listener doc:name="POST /parties/lookup" config-ref="HTTP_Listener_config" path="/api/global/parties/lookup" allowedMethods="POST"/>
-    
+  <!-- POST /parties/lookup - Business Logic Flow -->
+  <flow name="lookup-party-business-logic" doc:name="lookup-party-business-logic">
     <try doc:name="Try">
       <http:request method="POST" config-ref="Global_Party_System_API_Config" path="/api/global/parties/lookup" doc:name="Lookup Party from System API">
         <http:body><![CDATA[#[payload]]]></http:body>
