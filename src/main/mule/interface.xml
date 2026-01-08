@@ -11,10 +11,6 @@
       http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 
   <!-- APIkit Router Configuration -->
-  <apikit:config name="global-party-process-api-config" 
-                  raml="global-party-process-api.raml" 
-                  outboundHeadersMapName="outboundHeaders" 
-                  httpStatusVarName="httpStatus"/>
 
   <!-- Main HTTP Listener with APIkit Router -->
   <flow name="main">
@@ -132,7 +128,7 @@ output application/json
   </flow>
 
   <!-- GET /parties/{partyGlobalId} -->
-  <flow name="get:\parties\{partyGlobalId}:global-party-process-api-config">
+  <flow name="get:\parties\(partyGlobalId):global-party-process-api-config">
     <set-variable value="#[attributes.uriParams.partyGlobalId]" variableName="partyGlobalId" doc:name="Set Party Global ID"/>
     <flow-ref name="get-party-by-global-id-business-logic" doc:name="get-party-by-global-id-business-logic"/>
   </flow>
