@@ -21,7 +21,7 @@ http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/m
   <http:request-config name="Global_Party_System_API_Config" doc:name="Global Party System API Config">
     <http:request-connection host="${global.party.system.api.host}" port="${global.party.system.api.port}" />
   </http:request-config>
-	<apikit:config outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" doc:name="Router" doc:id="b97d6c39-c744-46f5-b292-29fafd8660b6" name="global-party-process-api-config" api="global-party-process-api.raml" />
+	<apikit:config outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" doc:name="Router" doc:id="b97d6c39-c744-46f5-b292-29fafd8660b6" name="global-party-process-api-config" api="global-party-process-api.raml" />
 
 
 </mule>
