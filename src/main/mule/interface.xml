@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit"
+<mule xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
       xmlns:http="http://www.mulesoft.org/schema/mule/http"
       xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
       xmlns="http://www.mulesoft.org/schema/mule/core"
@@ -7,9 +7,8 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
       http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-      http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
       http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
-http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd">
+      http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd">
 
   <!-- APIkit Router Configuration -->
 
@@ -43,6 +42,7 @@ output application/json
         <set-variable value="404" doc:name="httpStatus" doc:id="d3d4a356-1b30-4ea3-bf48-82e66c597694" variableName="httpStatus"/>
       </on-error-propagate>
       <on-error-propagate type="APIKIT:BAD_REQUEST" enableNotifications="true" logException="true" doc:name="On Error Propagate">
+        <logger level="ERROR" message="APIKIT:BAD_REQUEST - Method: #[attributes.method], Path: #[attributes.requestPath], URI Params: #[attributes.uriParams], Query Params: #[attributes.queryParams], Error: #[error.description]" doc:name="Log Error Details"/>
         <ee:transform doc:name="Transform Error Response">
           <ee:message>
             <ee:set-payload><![CDATA[%dw 2.0
@@ -52,6 +52,8 @@ output application/json
   error: {
     code: "BAD_REQUEST",
     message: error.description default "Bad request",
+    method: attributes.method default "UNKNOWN",
+    path: attributes.requestPath default "UNKNOWN",
     timestamp: now()
   }
 }]]></ee:set-payload>
