@@ -133,7 +133,7 @@ output application/json
   </flow>
 
   <!-- POST /parties -->
-  <flow name="post:\parties:global-party-process-api-config">
+  <flow name="post:\parties:application\json:global-party-process-api-config">
     <flow-ref name="upsert-party-business-logic" doc:name="upsert-party-business-logic"/>
   </flow>
 
@@ -144,7 +144,7 @@ output application/json
   </flow>
 
   <!-- POST /parties/lookup -->
-  <flow name="post:\parties\lookup:global-party-process-api-config">
+  <flow name="post:\parties\lookup:application\json:global-party-process-api-config">
     <flow-ref name="lookup-party-business-logic" doc:name="lookup-party-business-logic"/>
   </flow>
 
