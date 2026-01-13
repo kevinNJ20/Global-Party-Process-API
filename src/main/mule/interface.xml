@@ -22,7 +22,7 @@
         <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
       </http:error-response>
     </http:listener>
-    <apikit:router doc:name="APIkit Router" doc:id="74f0dd8c-a505-4348-b18c-0d56a8d6b69b" config-ref="global-party-process-api-config"/>
+    <apikit:router doc:name="APIkit Router" doc:id="74f0dd8c-a505-4348-b18c-0d56a8d6b69b" config-ref="global-party-process-api-config" />
 		<error-handler>
       <on-error-propagate type="APIKIT:NOT_FOUND" enableNotifications="true" logException="true" doc:name="On Error Propagate">
         <ee:transform doc:name="Transform Error Response">
