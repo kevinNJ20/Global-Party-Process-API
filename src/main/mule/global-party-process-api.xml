@@ -11,13 +11,23 @@
 
   <!-- GET /parties - Business Logic Flow -->
   <flow name="get-parties-business-logic" doc:name="get-parties-business-logic">
+    <ee:transform doc:name="Build Query Parameters">
+      <ee:message>
+        <ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+{
+  limit: (payload.limit default "100") as String,
+  offset: (payload.offset default "0") as String
+} ++ (if (payload.globalId != null and payload.globalId != "") {"globalId": payload.globalId as String} else {})
+++ (if (payload.partyType != null and payload.partyType != "") {"partyType": payload.partyType as String} else {})
+++ (if (payload.lastName != null and payload.lastName != "") {"lastName": payload.lastName as String} else {})
+++ (if (payload.taxId != null and payload.taxId != "") {"taxId": payload.taxId as String} else {})]]></ee:set-payload>
+      </ee:message>
+    </ee:transform>
     <try doc:name="Try">
       <http:request config-ref="Global_Party_System_API_Config" path="/api/parties" doc:name="Get Parties from System API">
-        <http:query-params><![CDATA[#[{
-          "globalId": payload.globalId default null,
-          "limit": payload.limit default "100",
-          "offset": payload.offset default "0"
-        }]]]></http:query-params>
+        <http:query-params><![CDATA[#[payload]]]></http:query-params>
       </http:request>
 
       <set-variable value="200" doc:name="httpStatus" doc:id="d3d4a356-1b30-4ea3-bf48-82e66c597694" variableName="httpStatus"/>
